@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
-r"""Process the ImageNet Challenge bounding boxes for TensorFlow model training.
+"""Process the ImageNet Challenge bounding boxes for TensorFlow model training.
 
 Associate the ImageNet 2012 Challenge validation data set with labels.
 

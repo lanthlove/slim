@@ -332,6 +332,7 @@ def _get_init_fn():
         % FLAGS.train_dir)
     return None
 
+  #选择哪些数据不做restore
   exclusions = []
   if FLAGS.checkpoint_exclude_scopes:
     exclusions = [scope.strip()
@@ -346,6 +347,7 @@ def _get_init_fn():
     else:
       variables_to_restore.append(var)
 
+  # 获取最新的checkpoint
   if tf.gfile.IsDirectory(FLAGS.checkpoint_path):
     checkpoint_path = tf.train.latest_checkpoint(FLAGS.checkpoint_path)
   else:
@@ -382,10 +384,13 @@ def main(_):
     raise ValueError('You must supply the dataset directory with --dataset_dir')
 
   tf.logging.set_verbosity(tf.logging.INFO)
+  
+  #开始构建计算图
   with tf.Graph().as_default():
     #######################
     # Config model_deploy #
     #######################
+    #CPU分布式计算
     deploy_config = model_deploy.DeploymentConfig(
         num_clones=FLAGS.num_clones,
         clone_on_cpu=FLAGS.clone_on_cpu,
@@ -394,18 +399,21 @@ def main(_):
         num_ps_tasks=FLAGS.num_ps_tasks)
 
     # Create global_step
+    # 计算learningrate decay的时候需要用到
     with tf.device(deploy_config.variables_device()):
       global_step = slim.create_global_step()
 
     ######################
     # Select the dataset #
     ######################
+    # dataset，通过命令行参数传进来
     dataset = dataset_factory.get_dataset(
         FLAGS.dataset_name, FLAGS.dataset_split_name, FLAGS.dataset_dir)
 
     ######################
     # Select the network #
     ######################
+    # 模型
     network_fn = nets_factory.get_network_fn(
         FLAGS.model_name,
         num_classes=(dataset.num_classes - FLAGS.labels_offset),
@@ -415,6 +423,7 @@ def main(_):
     #####################################
     # Select the preprocessing function #
     #####################################
+    # 图片预处理
     preprocessing_name = FLAGS.preprocessing_name or FLAGS.model_name
     image_preprocessing_fn = preprocessing_factory.get_preprocessing(
         preprocessing_name,
@@ -423,6 +432,8 @@ def main(_):
     ##############################################################
     # Create a dataset provider that loads data from the dataset #
     ##############################################################
+    # 采用管道流的方式，源源不断的读取数据，与tensorflow的feed_dict方式不同
+    # tensorflow官方的dataset体系
     with tf.device(deploy_config.inputs_device()):
       provider = slim.dataset_data_provider.DatasetDataProvider(
           dataset,
@@ -435,7 +446,7 @@ def main(_):
       train_image_size = FLAGS.train_image_size or network_fn.default_image_size
 
       image = image_preprocessing_fn(image, train_image_size, train_image_size)
-
+      #取出一组batch
       images, labels = tf.train.batch(
           [image, label],
           batch_size=FLAGS.batch_size,
@@ -453,10 +464,15 @@ def main(_):
       """Allows data parallelism by creating multiple clones of network_fn."""
       images, labels = batch_queue.dequeue()
       logits, end_points = network_fn(images)
+      
+      preds = tf.argmax(logits)
+      train_acc, train_acc_update_op = tf.metrics.accuracy(labels=labels, predictions=preds, name='train_acc')
+      train_acc_sum = tf.summary.scalar('acc/train_acc', train_acc)
 
       #############################
       # Specify the loss function #
       #############################
+      # 辅助训练的参数
       if 'AuxLogits' in end_points:
         slim.losses.softmax_cross_entropy(
             end_points['AuxLogits'], labels,
@@ -469,6 +485,7 @@ def main(_):
     # Gather initial summaries.
     summaries = set(tf.get_collection(tf.GraphKeys.SUMMARIES))
 
+    # create_clone 与分布式训练有关
     clones = model_deploy.create_clones(deploy_config, clone_fn, [batch_queue])
     first_clone_scope = deploy_config.clone_scope(0)
     # Gather update_ops from the first clone. These contain, for example,
@@ -496,6 +513,7 @@ def main(_):
     #################################
     if FLAGS.moving_average_decay:
       moving_average_variables = slim.get_model_variables()
+      # 指数形式的average，在时间线上对模型结果做平均
       variable_averages = tf.train.ExponentialMovingAverage(
           FLAGS.moving_average_decay, global_step)
     else:
@@ -509,6 +527,7 @@ def main(_):
       optimizer = _configure_optimizer(learning_rate)
       summaries.add(tf.summary.scalar('learning_rate', learning_rate))
 
+    # 与并行运算相关
     if FLAGS.sync_replicas:
       # If sync_replicas is enabled, the averaging will be done in the chief
       # queue runner.
@@ -534,6 +553,7 @@ def main(_):
     summaries.add(tf.summary.scalar('total_loss', total_loss))
 
     # Create gradient updates.
+    # 更新梯度
     grad_updates = optimizer.apply_gradients(clones_gradients,
                                              global_step=global_step)
     update_ops.append(grad_updates)
@@ -546,9 +566,13 @@ def main(_):
     # created by model_fn and either optimize_clones() or _gather_clone_loss().
     summaries |= set(tf.get_collection(tf.GraphKeys.SUMMARIES,
                                        first_clone_scope))
-
+    
     # Merge all summaries together.
     summary_op = tf.summary.merge(list(summaries), name='summary_op')
+
+    #gpu_options = tf.GPUOptions(allow_growth = True)
+    sess_config = tf.ConfigProto(allow_soft_placement=True)
+    sess_config.gpu_options.allow_growth = True
 
     ###########################
     # Kicks off the training. #
@@ -564,6 +588,7 @@ def main(_):
         log_every_n_steps=FLAGS.log_every_n_steps,
         save_summaries_secs=FLAGS.save_summaries_secs,
         save_interval_secs=FLAGS.save_interval_secs,
+        session_config=sess_config,
         sync_optimizer=optimizer if FLAGS.sync_replicas else None)
 
 

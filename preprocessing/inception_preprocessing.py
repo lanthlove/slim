@@ -35,6 +35,7 @@ def apply_with_random_selector(x, func, num_cases):
     The result of func(x, sel), where func receives the value of the
     selector as a python integer, but sel is sampled dynamically.
   """
+  #sel,随机生成一个[0,maxval)之间的整数
   sel = tf.random_uniform([], maxval=num_cases, dtype=tf.int32)
   # Pass the real x only to one of the func calls.
   return control_flow_ops.merge([
@@ -113,16 +114,25 @@ def distorted_bounding_box_crop(image,
       where each coordinate is [0, 1) and the coordinates are arranged
       as [ymin, xmin, ymax, xmax]. If num_boxes is 0 then it would use the whole
       image.
+    
     min_object_covered: An optional `float`. Defaults to `0.1`. The cropped
       area of the image must contain at least this fraction of any bounding box
       supplied.
+      boundingbox占图片最小的区域
+
     aspect_ratio_range: An optional list of `floats`. The cropped area of the
       image must have an aspect ratio = width / height within this range.
+      宽高比的范围
+
     area_range: An optional list of `floats`. The cropped area of the image
       must contain a fraction of the supplied image within in this range.
+      截取的区域占全图的比例范围
+
     max_attempts: An optional `int`. Number of attempts at generating a cropped
       region of the image of the specified constraints. After `max_attempts`
       failures, return the entire image.
+      最大尝试裁剪次数
+
     scope: Optional scope for name_scope.
   Returns:
     A tuple, a 3-D Tensor cropped_image and the distorted bbox
@@ -188,19 +198,25 @@ def preprocess_for_train(image, height, width, bbox,
       bbox = tf.constant([0.0, 0.0, 1.0, 1.0],
                          dtype=tf.float32,
                          shape=[1, 1, 4])
+    #图片格式转为float
     if image.dtype != tf.float32:
       image = tf.image.convert_image_dtype(image, dtype=tf.float32)
     # Each bounding box has shape [1, num_boxes, box coords] and
     # the coordinates are ordered [ymin, xmin, ymax, xmax].
+    
+    #在原有的图上画boundingbox
     image_with_box = tf.image.draw_bounding_boxes(tf.expand_dims(image, 0),
                                                   bbox)
+    #将画框的图片加入到summary中
     if add_image_summaries:
       tf.summary.image('image_with_bounding_boxes', image_with_box)
 
+    #根据boundingbox在图片上随机截取图片
     distorted_image, distorted_bbox = distorted_bounding_box_crop(image, bbox)
     # Restore the shape since the dynamic slice based upon the bbox_size loses
     # the third dimension.
     distorted_image.set_shape([None, None, 3])
+    #原图上画新的才切块
     image_with_distorted_box = tf.image.draw_bounding_boxes(
         tf.expand_dims(image, 0), distorted_bbox)
     if add_image_summaries:
@@ -214,6 +230,7 @@ def preprocess_for_train(image, height, width, bbox,
 
     # We select only 1 case for fast_mode bilinear.
     num_resize_cases = 1 if fast_mode else 4
+    #默认使用fastmode，num_resize_cases =1，这时选择的是双线性的裁切方式
     distorted_image = apply_with_random_selector(
         distorted_image,
         lambda x, method: tf.image.resize_images(x, [height, width], method),
@@ -236,6 +253,8 @@ def preprocess_for_train(image, height, width, bbox,
     if add_image_summaries:
       tf.summary.image('final_distorted_image',
                        tf.expand_dims(distorted_image, 0))
+    
+    #将图片值范围从[0,1]变为[-1,1]
     distorted_image = tf.subtract(distorted_image, 0.5)
     distorted_image = tf.multiply(distorted_image, 2.0)
     return distorted_image
@@ -258,7 +277,10 @@ def preprocess_for_eval(image, height, width,
       int(8/16/32) data type (see `tf.image.convert_image_dtype` for details).
     height: integer
     width: integer
+    
     central_fraction: Optional Float, fraction of the image to crop.
+    #长宽按照0.875的比例裁切后再给网络识别，实际应用中，这种裁切对识别准确率有提升
+
     scope: Optional scope for name_scope.
   Returns:
     3-D float Tensor of prepared image.

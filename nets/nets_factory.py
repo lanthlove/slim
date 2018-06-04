@@ -33,6 +33,7 @@ from nets import vgg
 from nets.mobilenet import mobilenet_v2
 from nets.nasnet import nasnet
 from nets.nasnet import pnasnet
+from nets import densenet
 
 slim = tf.contrib.slim
 
@@ -65,6 +66,9 @@ networks_map = {'alexnet_v2': alexnet.alexnet_v2,
                 'nasnet_mobile': nasnet.build_nasnet_mobile,
                 'nasnet_large': nasnet.build_nasnet_large,
                 'pnasnet_large': pnasnet.build_pnasnet_large,
+                'densenet_bc100':densenet.densenet_bc100,
+                'densenet_bc250':densenet.densenet_bc250,
+                'densenet_40':densenet.densenet_40,
                }
 
 arg_scopes_map = {'alexnet_v2': alexnet.alexnet_v2_arg_scope,
@@ -77,8 +81,7 @@ arg_scopes_map = {'alexnet_v2': alexnet.alexnet_v2_arg_scope,
                   'inception_v2': inception.inception_v3_arg_scope,
                   'inception_v3': inception.inception_v3_arg_scope,
                   'inception_v4': inception.inception_v4_arg_scope,
-                  'inception_resnet_v2':
-                  inception.inception_resnet_v2_arg_scope,
+                  'inception_resnet_v2':inception.inception_resnet_v2_arg_scope,
                   'lenet': lenet.lenet_arg_scope,
                   'resnet_v1_50': resnet_v1.resnet_arg_scope,
                   'resnet_v1_101': resnet_v1.resnet_arg_scope,
@@ -97,6 +100,9 @@ arg_scopes_map = {'alexnet_v2': alexnet.alexnet_v2_arg_scope,
                   'nasnet_mobile': nasnet.nasnet_mobile_arg_scope,
                   'nasnet_large': nasnet.nasnet_large_arg_scope,
                   'pnasnet_large': pnasnet.pnasnet_large_arg_scope,
+                  'densenet_bc100':densenet.densenet_arg_scope,
+                  'densenet_bc250':densenet.densenet_arg_scope,
+                  'densenet_40':densenet.densenet_arg_scope,
                  }
 
 
