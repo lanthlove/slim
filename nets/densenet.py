@@ -264,7 +264,7 @@ def densenet_40(inputs,
                                  )
     return logits,end_points
 
-densenet.default_image_size = 320
+densenet.default_image_size = 224
 
 densenet_40.default_image_size = densenet.default_image_size
 densenet_bc100.default_image_size = densenet.default_image_size
