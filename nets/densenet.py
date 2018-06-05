@@ -115,11 +115,11 @@ def densenet(inputs,
                 
                 inputs_shape = inputs.get_shape().as_list()
                 if inputs_shape[1] >max_size:
-                    end_point = scope + 'conv9x9'
+                    end_point = scope + '_conv9x9'
                     net = slim.conv2d(inputs,grow_rate*2,[9,9],stride=3,scope=end_point)
                     end_points[end_point] = net
 
-                    end_point = scope + 'mpool3x3'
+                    end_point = scope + '_mpool3x3'
                     net = slim.max_pool2d(net,[5,5],stride=2, padding='same',scope=end_point)
                     end_points[end_point] = net
                 elif inputs_shape[1] >100:
@@ -127,17 +127,17 @@ def densenet(inputs,
                     net = slim.conv2d(inputs,grow_rate*2,[7,7],stride=2,scope=end_point)
                     end_points[end_point] = net
 
-                    end_point = scope + 'mpool3x3'
+                    end_point = scope + '_mpool3x3'
                     net = slim.max_pool2d(net,[3,3],stride=2, padding='same',scope=end_point)
                     end_points[end_point] = net
                 else:
-                    end_point = scope + 'conv3x3'
+                    end_point = scope + '_conv3x3'
                     net = slim.conv2d(inputs,grow_rate*2,[3,3],stride=2, padding='same',scope=end_point)
                     end_points[end_point] = net
 
                 for i,len_block in enumerate(num_block_list):
                     # dense block
-                    end_point = scope + 'block_' + str(i)
+                    end_point = scope + '_block' + str(i)
                     net = densenet_block(net,keep_proba,grow_rate,layers=len_block,scope=end_point,use_BC=use_BC)
                     end_points[end_point] = net
                     
@@ -153,16 +153,16 @@ def densenet(inputs,
 
                 end_points['denseblock'] = net
 
-                end_point = scope + 'gpool'
+                end_point = scope + '_gpool'
                 net_shape = net.get_shape().as_list()
                 net = slim.avg_pool2d(net,[net_shape[1],net_shape[2]],stride=1, padding='valid',scope=end_point)
                 end_points['globalpool'] = net
 
-                end_point = scope + 'fc'
+                end_point = scope + '_fc'
                 net = tf.contrib.layers.flatten(net)
                 logits = slim.fully_connected(net,num_classes,scope=end_point,activation_fn=None)
                 end_points['logit'] = net
-                predictions = prediction_fn(logits, scope='Predictions')
+                predictions = prediction_fn(logits, scope='predictions')
                 end_points['prediction'] = predictions
 
                 return logits,end_points
@@ -217,7 +217,7 @@ def densenet_bc124(inputs,
                                  num_classes,
                                  is_training,
                                  block_list,
-                                 scope='dense_bc100',
+                                 scope='dense_bc240',
                                  grow_rate=12,
                                  large_mem = large_mem,
                                  keep_proba = dropout_keep_prob,

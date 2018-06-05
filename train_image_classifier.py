@@ -480,8 +480,8 @@ def main(_):
       preds = tf.equal(tf.argmax(labels, 1), tf.argmax(tf.nn.softmax(logits), axis=1))
       acurracy = tf.reduce_mean(tf.cast(preds, tf.float32))
       summaries.add(tf.summary.scalar('train_acc', acurracy))
-      summaries.add(tf.summary.histogram('wtf/labels', labels))
-      summaries.add(tf.summary.scalar('wtf/labels', labels.get_shape().as_list()[-1]))
+      #summaries.add(tf.summary.histogram('wtf/labels', labels))
+      #summaries.add(tf.summary.scalar('wtf/labels', labels.get_shape().as_list()[-1]))
 
       return end_points
 
