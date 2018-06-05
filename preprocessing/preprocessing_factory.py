@@ -24,6 +24,7 @@ from preprocessing import cifarnet_preprocessing
 from preprocessing import inception_preprocessing
 from preprocessing import lenet_preprocessing
 from preprocessing import vgg_preprocessing
+from preprocessing import resize_preprocessing
 
 slim = tf.contrib.slim
 
@@ -69,9 +70,12 @@ def get_preprocessing(name, is_training=False):
       'vgg_a': vgg_preprocessing,
       'vgg_16': vgg_preprocessing,
       'vgg_19': vgg_preprocessing,
-      'densenet_bc100':cifarnet_preprocessing,
+      'densenet_bc88':resize_preprocessing,
+      'densenet_bc100':resize_preprocessing,
+      'densenet_bc124':cifarnet_preprocessing,
       'densenet_bc250':cifarnet_preprocessing,
       'densenet_40':cifarnet_preprocessing,
+      'resize':resize_preprocessing
   }
 
   if name not in preprocessing_fn_map:

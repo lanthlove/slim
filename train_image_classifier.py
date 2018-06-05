@@ -31,7 +31,7 @@ tf.app.flags.DEFINE_string(
     'master', '', 'The address of the TensorFlow master to use.')
 
 tf.app.flags.DEFINE_string(
-    'train_dir', '/tmp/tfmodel/',
+    'train_dir', '/output/ckpt',
     'Directory where checkpoints and event logs are written to.')
 
 tf.app.flags.DEFINE_integer('num_clones', 1,
@@ -56,11 +56,11 @@ tf.app.flags.DEFINE_integer(
     'The number of threads used to create the batches.')
 
 tf.app.flags.DEFINE_integer(
-    'log_every_n_steps', 10,
+    'log_every_n_steps', 100,
     'The frequency with which logs are print.')
 
 tf.app.flags.DEFINE_integer(
-    'save_summaries_secs', 600,
+    'save_summaries_secs', 60,
     'The frequency with which summaries are saved, in seconds.')
 
 tf.app.flags.DEFINE_integer(
@@ -141,7 +141,7 @@ tf.app.flags.DEFINE_float(
     'label_smoothing', 0.0, 'The amount of label smoothing.')
 
 tf.app.flags.DEFINE_float(
-    'learning_rate_decay_factor', 0.94, 'Learning rate decay factor.')
+    'learning_rate_decay_factor', 0.95, 'Learning rate decay factor.')
 
 tf.app.flags.DEFINE_float(
     'num_epochs_per_decay', 2.0,
@@ -165,13 +165,13 @@ tf.app.flags.DEFINE_float(
 #######################
 
 tf.app.flags.DEFINE_string(
-    'dataset_name', 'imagenet', 'The name of the dataset to load.')
+    'dataset_name', 'quiz', 'The name of the dataset to load.')
 
 tf.app.flags.DEFINE_string(
     'dataset_split_name', 'train', 'The name of the train/test split.')
 
 tf.app.flags.DEFINE_string(
-    'dataset_dir', None, 'The directory where the dataset files are stored.')
+    'dataset_dir', '/data/ai100/quiz-w7', 'The directory where the dataset files are stored.')
 
 tf.app.flags.DEFINE_integer(
     'labels_offset', 0,
@@ -180,7 +180,7 @@ tf.app.flags.DEFINE_integer(
     'class for the ImageNet dataset.')
 
 tf.app.flags.DEFINE_string(
-    'model_name', 'inception_v3', 'The name of the architecture to train.')
+    'model_name', 'densenet_bc124', 'The name of the architecture to train.')
 
 tf.app.flags.DEFINE_string(
     'preprocessing_name', None, 'The name of the preprocessing to use. If left '
@@ -190,9 +190,9 @@ tf.app.flags.DEFINE_integer(
     'batch_size', 32, 'The number of samples in each batch.')
 
 tf.app.flags.DEFINE_integer(
-    'train_image_size', None, 'Train image size')
+    'train_image_size', 320, 'Train image size')
 
-tf.app.flags.DEFINE_integer('max_number_of_steps', None,
+tf.app.flags.DEFINE_integer('max_number_of_steps', 150000,
                             'The maximum number of training steps.')
 
 #####################
@@ -464,10 +464,6 @@ def main(_):
       """Allows data parallelism by creating multiple clones of network_fn."""
       images, labels = batch_queue.dequeue()
       logits, end_points = network_fn(images)
-      
-      preds = tf.argmax(logits)
-      train_acc, train_acc_update_op = tf.metrics.accuracy(labels=labels, predictions=preds, name='train_acc')
-      train_acc_sum = tf.summary.scalar('acc/train_acc', train_acc)
 
       #############################
       # Specify the loss function #
@@ -480,6 +476,13 @@ def main(_):
             scope='aux_loss')
       slim.losses.softmax_cross_entropy(
           logits, labels, label_smoothing=FLAGS.label_smoothing, weights=1.0)
+      
+      preds = tf.equal(tf.argmax(labels, 1), tf.argmax(tf.nn.softmax(logits), axis=1))
+      acurracy = tf.reduce_mean(tf.cast(preds, tf.float32))
+      summaries.add(tf.summary.scalar('train_acc', acurracy))
+      summaries.add(tf.summary.histogram('wtf/labels', labels))
+      summaries.add(tf.summary.scalar('wtf/labels', labels.get_shape().as_list()[-1]))
+
       return end_points
 
     # Gather initial summaries.
@@ -573,6 +576,7 @@ def main(_):
     #gpu_options = tf.GPUOptions(allow_growth = True)
     sess_config = tf.ConfigProto(allow_soft_placement=True)
     sess_config.gpu_options.allow_growth = True
+    sess_config.gpu_options.per_process_gpu_memory_fraction = 0.95
 
     ###########################
     # Kicks off the training. #

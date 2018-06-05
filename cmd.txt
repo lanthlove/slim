@@ -1,3 +1,51 @@
+
+model:      densenet_bc100
+dataset:    cifar10
+
 python train_image_classifier.py --train_dir=D:\Documents\AI\CSDN\Week08\Code\models_densenet2 --dataset_name=cifar10 --dataset_split_name=train --dataset_dir=D:\Documents\AI\Database\cifar10 --model_name=densenet_bc100 --preprocessing_name=cifarnet --max_number_of_steps=150000 --batch_size=100 --save_interval_secs=600 --save_summaries_secs=600 --log_every_n_steps=100 --optimizer=adam --learning_rate=0.1 --learning_rate_decay_factor=0.96 --num_epochs_per_decay=2 --weight_decay=0.0001
 
 python eval_image_classifier.py --checkpoint_path=D:\Documents\AI\CSDN\Week08\Code\models_densenet2 --eval_dir=D:\Documents\AI\CSDN\Week08\Code\models_densenet2 --dataset_name=cifar10 --dataset_split_name=test --dataset_dir=D:\Documents\AI\Database\cifar10 --model_name=densenet_bc100
+
+
+---------------------------------------------------------------------------------------------------------
+
+model:      densenet_bc100
+dataset:    quiz
+
+python train_image_classifier.py --train_dir=D:\Documents\AI\CSDN\Week08\Code\models_densenet2qz1 --dataset_name=quiz --dataset_split_name=train --dataset_dir=D:\Documents\AI\Database\quiz --model_name=densenet_bc88 --preprocessing_name=inception --max_number_of_steps=300000 --batch_size=14 --save_interval_secs=600 --save_summaries_secs=60 --log_every_n_steps=100 --optimizer=adam --learning_rate=0.1 --learning_rate_decay_factor=0.5 --num_epochs_per_decay=20 --weight_decay=0.0001  --train_image_size=320
+
+python train_image_classifier.py --train_dir=D:\Documents\AI\CSDN\Week08\Code\models_densenet2qz1 --dataset_dir=D:\Documents\AI\Database\quiz
+---------------------------------------------------------------------------------------------------------
+
+model:      inception 4
+dataset:    quiz
+
+训练：
+gpu:
+python train_image_classifier.py --dataset_name=quiz --dataset_dir=D:\Documents\AI\Database\quiz --checkpoint_path=D:\Documents\AI\Models\inception\inception_v4.ckpt --model_name=inception_v4 --checkpoint_exclude_scopes=InceptionV4/Logits,InceptionV4/AuxLogits/Aux_logits --train_dir=D:\Documents\AI\CSDN\Week08\Code\models_inception --learning_rate=0.001 --optimizer=rmsprop --batch_size=8
+cpu:
+python train_image_classifier.py --dataset_name=quiz --dataset_dir=D:\Documents\AI\Database\quiz --checkpoint_path=D:\Documents\AI\Models\inception\inception_v4.ckpt --model_name=inception_v4 --checkpoint_exclude_scopes=InceptionV4/Logits,InceptionV4/AuxLogits/Aux_logits --train_dir=D:\Documents\AI\CSDN\Week08\Code\models_inception --learning_rate=0.001 --optimizer=rmsprop --batch_size=32 --clone_on_cpu=True
+
+train集验证：
+python eval_image_classifier.py --dataset_name=quiz --dataset_dir=D:\Documents\AI\Database\quiz --dataset_split_name=train --model_name=inception_v4 --checkpoint_path=D:\Documents\AI\Models\inception\inception_v4.ckpt --eval_dir=D:\Documents\AI\Models\inception --batch_size=32 --max_num_batches=128
+
+validation集验证：
+python eval_image_classifier.py --dataset_name=quiz --dataset_dir=D:\Documents\AI\Database\quiz --dataset_split_name=validation --model_name=inception_v4 --checkpoint_path=D:\Documents\AI\Models\inception\inception_v4.ckpt --eval_dir=D:\Documents\AI\Models\inception --batch_size=32 --max_num_batches=128
+
+统一脚本：
+python train_eval_image_classifier.py --dataset_name=quiz --dataset_dir=/path/to/data --checkpoint_path=/path/to/inception_v4.ckpt --model_name=inception_v4 --checkpoint_exclude_scopes=InceptionV4/Logits,InceptionV4/AuxLogits/Aux_logits --optimizer=rmsprop --train_dir=/path/to/log/train_ckpt --learning_rate=0.001 --dataset_split_name=validation --eval_dir=/path/to/eval --max_num_batches=128
+
+
+
+
+训练
+python3 train_image_classifier.py --dataset_name=quiz --dataset_dir=/path/to/data --model_name=densenet --train_dir=/path/to/train_ckpt_den --learning_rate=0.1 --optimizer=rmsprop  --batch_size=16/path/to
+
+train集验证：
+python3 eval_image_classifier.py --dataset_name=quiz --dataset_dir=/path/to/data --dataset_split_name=train --model_name=densenet --checkpoint_path=/path/to/train_ckpt_den --eval_dir=/path/to/train_eval_den --batch_size=32 --max_num_batches=128
+
+validation集验证：
+python3 eval_image_classifier.py --dataset_name=quiz --dataset_dir=/path/to/data --dataset_split_name=validation --model_name=densenet --checkpoint_path=/path/to/train_ckpt_den --eval_dir=/path/to/validation_eval_den --batch_size=32 --max_num_batches=128
+
+统一脚本：
+python3 train_eval_image_classifier.py --dataset_name=quiz --dataset_dir=/path/to/data --model_name=densenet --checkpoint_exclude_scopes=InceptionV4/Logits,InceptionV4/AuxLogits/Aux_logits --train_dir=/path/to/log/train_ckpt --learning_rate=0.1 --dataset_split_name=validation --eval_dir=/path/to/eval_den --max_num_batches=128
