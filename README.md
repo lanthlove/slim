@@ -53,6 +53,8 @@ denseblock中，每层网络的输出的神经元数量都是grow_rate，输入�
   denseblock的输出为：H = H(0) + H(1) + H(2) + ... + H(n)
       
   __这里的相加，在网络上的表现为第n层网络与前面(0,1,...n-1)层网络都有连接，这种连接也就是稠密连接(Dense connect)__  
+  __由于每层的输出为grow_rate，因此每增加一层，denseblock最终的输出的维度都要增加grow_rate__  
+  比如：输入的维度为(n,h,w,k),denseblock的层数(compsition)为12，那么输出的维度为，k + 12 * grow_rate
 
 代码实现如下：
 ```python
@@ -128,7 +130,7 @@ def composition_layer(net,keep_proba,grow_rate = 12,scope=None):
 
 ### Transition layer
 连接两个不同的denseblock，并利用pooling降低输入数据size  
-theta是对输入数据进行降维的比例
+theta是对输入数据进行降维的比例  
 
 代码如下：
 ```python
@@ -165,7 +167,7 @@ def transition_layer(net,keep_proba,theta = 0.5,scope = None):
   end_points['prediction'] = predictions
 ```
 
-## 在quiz数据集上的运行结果
+## 在quiz数据集上的运行结果  
 train截图，Excution ID:znli99s0  
 ![train_znli99s0](./images/train_znli99s0.JPG)
 
@@ -174,6 +176,26 @@ train截图，Excution ID:znli99s0
 
 在validation数据集上验证准确率，Excution ID:0mflju56  
 ![val_vali_0mflju56](./images/val_vali_0mflju56.jpg)
+
+
+## 在cifar数据集上运行结果  
+在cifar数据集上,主要参数如下：    
+L = 100 (with bottleneck and compression rate = 0.5)  
+weight_decay：1e-4  
+batch_size : 100  
+learning rate: 0.1  
+optimiser = adam  
+learning_rate_decay_factor:0.95  
+num_epochs_per_decay:2  
+结果如下：  
+loss  
+![cifar](./images/cifar.jpg)  
+
+acc:  
+![cifar-acc](./images/acc.jpg)  
+
+测试集上得到的最好的准确率只有0.86，结果并不好。最终的learning rate为2e-3，weight decay也偏大。  
+在本机上跑的，耗时太久，后面考虑用其他参数再run一遍。后面再更新，这次作业先到这里吧！
 
 
 # TensorFlow-Slim image classification model library
