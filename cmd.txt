@@ -2,17 +2,21 @@
 model:      densenet_bc100
 dataset:    cifar10
 
-python train_image_classifier.py --train_dir=D:\Documents\AI\CSDN\Week08\Code\models_densenet2 --dataset_name=cifar10 --dataset_split_name=train --dataset_dir=D:\Documents\AI\Database\cifar10 --model_name=densenet_bc100 --preprocessing_name=cifarnet --max_number_of_steps=150000 --batch_size=100 --save_interval_secs=600 --save_summaries_secs=600 --log_every_n_steps=100 --optimizer=adam --learning_rate=0.1 --learning_rate_decay_factor=0.96 --num_epochs_per_decay=2 --weight_decay=0.0001
+python train_image_classifier.py --train_dir=D:\Documents\AI\CSDN\Week08\Code\models_densenet2 --dataset_name=cifar10 --dataset_split_name=train --dataset_dir=D:\Documents\AI\Database\cifar10 --model_name=densenet_bc100 --preprocessing_name=cifarnet --max_number_of_steps=100000 --batch_size=100 --save_interval_secs=600 --save_summaries_secs=600 --log_every_n_steps=100 --optimizer=adam --learning_rate=0.1 --learning_rate_decay_factor=0.95 --num_epochs_per_decay=2 --weight_decay=4e-5
 
 python eval_image_classifier.py --checkpoint_path=D:\Documents\AI\CSDN\Week08\Code\models_densenet2 --eval_dir=D:\Documents\AI\CSDN\Week08\Code\models_densenet2 --dataset_name=cifar10 --dataset_split_name=test --dataset_dir=D:\Documents\AI\Database\cifar10 --model_name=densenet_bc100
 
+-------------
+use momentum and staged learning rate
+python train_image_classifier.py --train_dir=C:\TrainData\models\models_densenet3 --dataset_name=cifar10 --dataset_split_name=train --dataset_dir=C:\TrainData\dataset\cifar10 --model_name=densenet_bc100 --preprocessing_name=cifarnet --max_number_of_steps=100000 --batch_size=100 --save_interval_secs=1200 --save_summaries_secs=600 --log_every_n_steps=100 --optimizer=momentum --learning_rate=0.1 --weight_decay=4e-5 --train_image_size=32
 
+python eval_image_classifier.py --checkpoint_path=C:\TrainData\models\models_densenet3 --eval_dir=C:\TrainData\models\models_densenet3 --dataset_name=cifar10 --dataset_split_name=test --dataset_dir=C:\TrainData\dataset\cifar10 --model_name=densenet_bc100
 ---------------------------------------------------------------------------------------------------------
 
 model:      densenet_bc100
 dataset:    quiz
 
-python train_image_classifier.py --train_dir=D:\Documents\AI\CSDN\Week08\Code\models_densenet2qz1 --dataset_name=quiz --dataset_split_name=train --dataset_dir=D:\Documents\AI\Database\quiz --model_name=densenet_bc88 --preprocessing_name=inception --max_number_of_steps=300000 --batch_size=14 --save_interval_secs=600 --save_summaries_secs=60 --log_every_n_steps=100 --optimizer=adam --learning_rate=0.1 --learning_rate_decay_factor=0.5 --num_epochs_per_decay=20 --weight_decay=0.0001  --train_image_size=320
+python train_image_classifier.py --train_dir=D:\Documents\AI\CSDN\Week08\Code\models_densenet2qz1 --dataset_name=quiz --dataset_split_name=train --dataset_dir=D:\Documents\AI\Database\quiz --model_name=densenet_bc88 --preprocessing_name=inception --max_number_of_steps=300000 --batch_size=14 --save_interval_secs=600 --save_summaries_secs=60 --log_every_n_steps=100 --optimizer=adam --learning_rate=0.1 --learning_rate_decay_factor=0.5 --num_epochs_per_decay=20 --weight_decay=4e-5  --train_image_size=320
 
 python train_image_classifier.py --train_dir=D:\Documents\AI\CSDN\Week08\Code\models_densenet2qz1 --dataset_dir=D:\Documents\AI\Database\quiz
 ---------------------------------------------------------------------------------------------------------

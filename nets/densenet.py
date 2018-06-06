@@ -25,7 +25,7 @@ def composition_layer(net,keep_proba,grow_rate = 12,scope=None):
         end_point = scope + 'relu'
         net = tf.nn.relu(net,name=end_point)
         end_point = scope + 'conv3x3'
-        net = slim.conv2d(net, grow_rate, [3, 3], stride=1, scope=end_point,activation_fn=None)
+        net = slim.conv2d(net, grow_rate, [3, 3], stride=1, scope=end_point)
         end_point = scope + 'drop'
         net = slim.dropout(net, keep_prob=keep_proba, scope=end_point)
         return net
@@ -38,7 +38,7 @@ def bottleneck_layer(net,keep_proba,grow_rate = 12,scope = None):
         end_point = scope + 'relu'
         net = tf.nn.relu(net,name=end_point)
         end_point = scope + 'conv1x1'
-        net = slim.conv2d(net, 4*grow_rate, [1, 1], stride=1, scope=end_point,activation_fn=None)
+        net = slim.conv2d(net, 4*grow_rate, [1, 1], stride=1, scope=end_point)
         end_point = scope + 'drop'
         net = slim.dropout(net, keep_prob=keep_proba, scope=end_point)
         return net
