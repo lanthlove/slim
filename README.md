@@ -169,7 +169,7 @@ def transition_layer(net,keep_proba,theta = 0.5,scope = None):
 
 ## 在quiz数据集上的运行结果  
 train截图，Excution ID:znli99s0  
-![train_znli99s0](./images/train_znli99s0.JPG)
+![train_znli99s0](./images/train_znli99s0.jpg)
 
 在train数据集上验证准确率，Excution ID:4ijmgus5  
 ![val_train_4ijmgus5](./images/val_train_4ijmgus5.jpg)
