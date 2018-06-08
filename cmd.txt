@@ -10,7 +10,9 @@ python eval_image_classifier.py --checkpoint_path=D:\Documents\AI\CSDN\Week08\Co
 use momentum and staged learning rate
 python train_image_classifier.py --train_dir=C:\TrainData\models\models_densenet3 --dataset_name=cifar10 --dataset_split_name=train --dataset_dir=C:\TrainData\dataset\cifar10 --model_name=densenet_bc100 --preprocessing_name=cifarnet --max_number_of_steps=100000 --batch_size=100 --save_interval_secs=1200 --save_summaries_secs=600 --log_every_n_steps=100 --optimizer=momentum --learning_rate=0.1 --weight_decay=4e-5 --train_image_size=32
 
-python eval_image_classifier.py --checkpoint_path=C:\TrainData\models\models_densenet3 --eval_dir=C:\TrainData\models\models_densenet3 --dataset_name=cifar10 --dataset_split_name=test --dataset_dir=C:\TrainData\dataset\cifar10 --model_name=densenet_bc100
+python eval_image_classifier.py --checkpoint_path=C:\TrainData\models\models_densenet3 --eval_dir=C:\TrainData\models\models_densenet3 --dataset_name=cifar10 --dataset_split_name=test --dataset_dir=C:\TrainData\dataset\cifar10 --model_name=densenet_bc100 --eval_image_size=32
+
+
 ---------------------------------------------------------------------------------------------------------
 
 model:      densenet_bc100
