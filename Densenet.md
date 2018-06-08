@@ -205,5 +205,5 @@ learning rate:
 acc:  
 ![cifar-acc](./images/acc.jpg)  
 
-相比较上个版本，accuracy on test从0.86提高到了0.914，训练只跑了200 epochs，怀疑是epoch太少导致的。  
+相比较上个版本，accuracy on test从0.86提高到了0.914，训练只跑了200 epochs，没有复现原作到0.95左右的准确率，怀疑是epoch太少导致的。  
 跑一次花了32.5个小时，这次先到这里吧，训练太累了。  
