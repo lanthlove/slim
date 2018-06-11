@@ -151,6 +151,11 @@ def densenet(inputs,
                             net = transition_layer(net,keep_proba,theta=1,scope=end_point)
                         end_points[end_point] = net
 
+                end_point = scope + '_block' + str(i) + '_last_bn'
+                net = slim.batch_norm(net,scope=end_point)
+                end_point = scope + '_block' + str(i) + '_last_relu'
+                net = tf.nn.relu(net,name=end_point)
+                
                 end_points['denseblock'] = net
 
                 end_point = scope + '_gpool'
